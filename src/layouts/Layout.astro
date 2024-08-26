@@ -1,0 +1,24 @@
+---
+import "@fontsource-variable/inter";
+
+interface Props {}
+
+const {} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Astro Template - Obake Labs</title>
+    <meta name="description" content="Astro Template - Obake Labs" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
