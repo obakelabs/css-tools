@@ -1,46 +1,17 @@
 ---
+import BoxShadowGenerator from "../components/box-shadow-generator";
 import Layout from "../layouts/Layout.astro";
-
-import AstroLogo from "../components/logos/astro-logo.astro";
-import ReactLogo from "../components/logos/react-logo.astro";
-import TailwindcssLogo from "../components/logos/tailwindcss-logo.astro";
-
-const TECH_STACK = [
-  {
-    name: "Astro",
-    logo: AstroLogo,
-    url: "https://astro.build",
-  },
-  {
-    name: "React",
-    logo: ReactLogo,
-    url: "https://react.dev",
-  },
-  {
-    name: "Tailwind CSS",
-    logo: TailwindcssLogo,
-    url: "https://tailwindcss.com",
-  },
-];
 ---
 
 <Layout>
-  <main>
-    <section class="flex h-screen flex-col items-center justify-center">
-      <div class="flex flex-col items-center justify-center gap-y-4">
-        <h1 class="text-3xl font-bold">Astro Template - Obake Labs</h1>
+  <main class="min-h-dvh">
+    <section class="flex h-full flex-col items-center justify-center">
+      <div class="flex w-full flex-col items-center justify-center gap-y-4">
+        <h1 class="text-center text-3xl font-bold">
+          Box Shadow Generator - Obake Labs
+        </h1>
 
-        <div class="flex items-center justify-center gap-x-4">
-          {
-            TECH_STACK.map(({ logo: Logo, url }) => (
-              <a href={url} target="_blank" rel="noopener noreferrer">
-                <div class="mb-2 flex items-center justify-center rounded-2xl border p-4 transition-all hover:scale-110">
-                  <Logo class="size-8" />
-                </div>
-              </a>
-            ))
-          }
-        </div>
+        <BoxShadowGenerator client:load />
       </div>
     </section>
   </main>
