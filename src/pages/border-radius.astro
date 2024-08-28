@@ -1,0 +1,27 @@
+---
+import BorderRadiusGenerator from "../components/border-radius-generator";
+import Layout from "../layouts/Layout.astro";
+import { AstroSeo } from "@astrolib/seo";
+import CssToolsTabs from "@/components/css-tools-tabs.astro";
+---
+
+<AstroSeo
+  title="Border Radius Generator - Obake Labs"
+  description="Generate border radius for your website with ease."
+/>
+
+<Layout>
+  <main class="min-h-dvh">
+    <section
+      class="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-y-4 px-4 py-10 xl:px-0"
+    >
+      <h1 class="text-center text-3xl font-bold">
+        Border Radius Generator - Obake Labs
+      </h1>
+
+      <CssToolsTabs />
+
+      <BorderRadiusGenerator client:load />
+    </section>
+  </main>
+</Layout>
