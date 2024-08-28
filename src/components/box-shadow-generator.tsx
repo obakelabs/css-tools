@@ -86,9 +86,9 @@ const BoxShadowGenerator = () => {
   }, [CSSCode, TailwindCSSCode]);
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-y-4">
-      <Card className="flex w-full gap-x-4 px-4">
-        <div className="flex w-1/2 flex-col gap-y-4 py-4">
+    <div className="flex w-full max-w-5xl flex-col gap-y-4 px-4 xl:px-0">
+      <Card className="flex w-full flex-col md:flex-row">
+        <div className="flex w-full flex-col gap-y-4 p-4 md:w-1/2">
           <fieldset className="flex flex-col gap-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="horizontal-length">Horizontal Length</Label>
@@ -198,10 +198,11 @@ const BoxShadowGenerator = () => {
         </div>
 
         <div>
-          <Separator orientation="vertical" />
+          <Separator className="md:hidden" orientation="horizontal" />
+          <Separator className="hidden md:block" orientation="vertical" />
         </div>
 
-        <div className="flex w-1/2 items-center justify-center py-4">
+        <div className="flex min-h-[416px] w-full items-center justify-center p-4 md:w-1/2">
           <div
             className="size-40 rounded-lg bg-black shadow-md"
             style={{ boxShadow: generatedBoxShadow }}
