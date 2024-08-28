@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
@@ -13,8 +13,8 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
 const BoxShadowGenerator = () => {
-  const [cssHtml, setCssHtml] = useState<string>("");
-  const [tailwindHtml, setTailwindHtml] = useState<string>("");
+  const [cssHtml, setCssHtml] = useState("");
+  const [tailwindHtml, setTailwindHtml] = useState("");
   const [cssCopyStatus, setCssCopyStatus] = useState<"ready" | "copied">(
     "ready",
   );
@@ -204,7 +204,7 @@ const BoxShadowGenerator = () => {
 
         <div className="flex min-h-[416px] w-full items-center justify-center p-4 md:w-1/2">
           <div
-            className="size-40 rounded-lg bg-black shadow-md"
+            className="size-40 rounded-lg bg-black"
             style={{ boxShadow: generatedBoxShadow }}
           />
         </div>
