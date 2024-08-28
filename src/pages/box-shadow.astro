@@ -1,0 +1,27 @@
+---
+import CssToolsTabs from "@/components/css-tools-tabs.astro";
+import BoxShadowGenerator from "../components/box-shadow-generator";
+import Layout from "../layouts/Layout.astro";
+import { AstroSeo } from "@astrolib/seo";
+---
+
+<AstroSeo
+  title="Box Shadow Generator - Obake Labs"
+  description="Generate box shadows for your website with ease."
+/>
+
+<Layout>
+  <main class="min-h-dvh">
+    <section
+      class="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-y-4 px-4 py-10 xl:px-0"
+    >
+      <h1 class="text-center text-3xl font-bold">
+        Box Shadow Generator - Obake Labs
+      </h1>
+
+      <CssToolsTabs />
+
+      <BoxShadowGenerator client:load />
+    </section>
+  </main>
+</Layout>

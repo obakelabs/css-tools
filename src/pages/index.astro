@@ -1,18 +1,24 @@
 ---
-import BoxShadowGenerator from "../components/box-shadow-generator";
 import Layout from "../layouts/Layout.astro";
+import { AstroSeo } from "@astrolib/seo";
+
+const title = "CSS Tools - Obake Labs";
+const description =
+  "A collection of CSS tools for designers and developers. Easily adjust properties with interactive sliders. Live preview and instant code copying for seamless workflow.";
 ---
+
+<AstroSeo title={title} description={description} />
 
 <Layout>
   <main class="min-h-dvh">
-    <section class="flex h-full flex-col items-center justify-center">
-      <div class="flex w-full flex-col items-center justify-center gap-y-4">
-        <h1 class="text-center text-3xl font-bold">
-          Box Shadow Generator - Obake Labs
-        </h1>
+    <section
+      class="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-y-4 px-4 py-10 xl:px-0"
+    >
+      <h1 class="text-center text-3xl font-bold">{title}</h1>
 
-        <BoxShadowGenerator client:load />
-      </div>
+      <p class="w-full max-w-xl text-center text-muted-foreground">
+        {description}
+      </p>
     </section>
   </main>
 </Layout>

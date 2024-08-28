@@ -86,7 +86,7 @@ const BoxShadowGenerator = () => {
   }, [CSSCode, TailwindCSSCode]);
 
   return (
-    <div className="flex w-full max-w-5xl flex-col gap-y-4 px-4 xl:px-0">
+    <div className="flex w-full flex-col gap-y-4">
       <Card className="flex w-full flex-col md:flex-row">
         <div className="flex w-full flex-col gap-y-4 p-4 md:w-1/2">
           <fieldset className="flex flex-col gap-y-3">
@@ -213,9 +213,9 @@ const BoxShadowGenerator = () => {
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-0 lg:space-x-4">
         <Card className="flex flex-col gap-y-4 p-4 lg:w-[calc(50%-0.5rem)]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-            <h2 className="text-2xl font-semibold leading-none tracking-tight">
+            <h3 className="text-2xl font-semibold leading-none tracking-tight">
               CSS Code:
-            </h2>
+            </h3>
 
             <Button
               size="sm"
@@ -247,9 +247,9 @@ const BoxShadowGenerator = () => {
 
         <Card className="flex flex-col gap-y-4 p-4 lg:w-[calc(50%-0.5rem)]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-            <h2 className="text-2xl font-semibold leading-none tracking-tight">
+            <h3 className="text-2xl font-semibold leading-none tracking-tight">
               Tailwind CSS Code:
-            </h2>
+            </h3>
 
             <Button
               size="sm"
