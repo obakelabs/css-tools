@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { type RgbaColor } from "react-colorful";
 import ColorPicker from "./color-picker";
@@ -13,17 +13,23 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
 const BoxShadowGenerator = () => {
-  const [html, setHtml] = useState<string>("");
-  const [copyStatus, setCopyStatus] = useState<"ready" | "copied">("ready");
+  const [cssHtml, setCssHtml] = useState<string>("");
+  const [tailwindHtml, setTailwindHtml] = useState<string>("");
+  const [cssCopyStatus, setCssCopyStatus] = useState<"ready" | "copied">(
+    "ready",
+  );
+  const [tailwindCopyStatus, setTailwindCopyStatus] = useState<
+    "ready" | "copied"
+  >("ready");
 
-  const [horizontalLength, setHorizontalLength] = useState(0);
-  const [verticalLength, setVerticalLength] = useState(0);
-  const [blurRadius, setBlurRadius] = useState(0);
+  const [horizontalLength, setHorizontalLength] = useState(10);
+  const [verticalLength, setVerticalLength] = useState(10);
+  const [blurRadius, setBlurRadius] = useState(10);
   const [spreadRadius, setSpreadRadius] = useState(0);
   const [shadowColor, setShadowColor] = useState<RgbaColor>({
-    r: 0,
-    g: 0,
-    b: 0,
+    r: 79,
+    g: 70,
+    b: 229,
     a: 1,
   });
   const [inset, setInset] = useState(false);
@@ -38,9 +44,17 @@ const BoxShadowGenerator = () => {
     box-shadow: ${generatedBoxShadow};
   }`;
 
-  const handleCopy = useCallback(() => {
+  const TailwindCSSCode = ` .shadow {
+    @apply shadow-[${inset ? "inset_" : ""}${horizontalLength}px_${verticalLength}px_${blurRadius}px_${spreadRadius}px_rgba(${shadowColor.r},${shadowColor.g},${shadowColor.b},${shadowColor.a})];
+  }`;
+
+  const handleCopy = (
+    code: string,
+    copyStatus: "ready" | "copied",
+    setCopyStatus: (status: "ready" | "copied") => void,
+  ) => {
     if (copyStatus === "ready") {
-      copy(CSSCode)
+      copy(code)
         .then(() => {
           setCopyStatus("copied");
           setTimeout(() => {
@@ -51,7 +65,7 @@ const BoxShadowGenerator = () => {
           console.error("Failed to copy!", error);
         });
     }
-  }, [copy, CSSCode, copyStatus]);
+  };
 
   useEffect(() => {
     const generateHtml = async () => {
@@ -59,16 +73,22 @@ const BoxShadowGenerator = () => {
         lang: "css",
         theme: "dracula",
       });
-      setHtml(generatedHtml);
+      setCssHtml(generatedHtml);
+
+      const generatedTailwindHtml = await codeToHtml(TailwindCSSCode, {
+        lang: "css",
+        theme: "dracula",
+      });
+      setTailwindHtml(generatedTailwindHtml);
     };
 
     generateHtml();
-  }, [CSSCode]);
+  }, [CSSCode, TailwindCSSCode]);
 
   return (
     <div className="flex w-full max-w-5xl flex-col gap-y-4">
       <Card className="flex w-full gap-x-4 px-4">
-        <div className="flex w-1/2 flex-col gap-y-6 py-4">
+        <div className="flex w-1/2 flex-col gap-y-4 py-4">
           <fieldset className="flex flex-col gap-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="horizontal-length">Horizontal Length</Label>
@@ -133,7 +153,7 @@ const BoxShadowGenerator = () => {
               name="blur-radius"
               value={[blurRadius]}
               onValueChange={(value) => setBlurRadius(value[0])}
-              min={-100}
+              min={0}
               max={100}
             />
           </fieldset>
@@ -177,45 +197,91 @@ const BoxShadowGenerator = () => {
           </fieldset>
         </div>
 
-        <Separator orientation="vertical" />
+        <div>
+          <Separator orientation="vertical" />
+        </div>
 
         <div className="flex w-1/2 items-center justify-center py-4">
           <div
-            className="size-40 bg-black shadow-md"
+            className="size-40 rounded-lg bg-black shadow-md"
             style={{ boxShadow: generatedBoxShadow }}
           />
         </div>
       </Card>
 
-      <Card className="flex w-1/2 flex-col gap-y-4 p-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-          <CardTitle>CSS Code:</CardTitle>
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-0 lg:space-x-4">
+        <Card className="flex flex-col gap-y-4 p-4 lg:w-[calc(50%-0.5rem)]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">
+              CSS Code:
+            </h2>
 
-          <Button
-            size="sm"
-            onClick={handleCopy}
-            disabled={copyStatus === "copied"}
-            className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
-            type="button"
-          >
-            {copyStatus === "copied" ? (
-              <>
-                <CheckIcon className="mr-2 size-3" />
-                Copied
-              </>
-            ) : (
-              <>
-                <CopyIcon className="mr-2 size-3" />
-                Copy
-              </>
-            )}
-          </Button>
-        </CardHeader>
+            <Button
+              size="sm"
+              onClick={() =>
+                handleCopy(CSSCode, cssCopyStatus, setCssCopyStatus)
+              }
+              disabled={cssCopyStatus === "copied"}
+              className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
+              type="button"
+            >
+              {cssCopyStatus === "copied" ? (
+                <>
+                  <CheckIcon className="mr-2 size-3" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="mr-2 size-3" />
+                  Copy
+                </>
+              )}
+            </Button>
+          </CardHeader>
 
-        <CardContent className="p-0">
-          <div dangerouslySetInnerHTML={{ __html: html }} />
-        </CardContent>
-      </Card>
+          <CardContent className="p-0">
+            <div dangerouslySetInnerHTML={{ __html: cssHtml }} />
+          </CardContent>
+        </Card>
+
+        <Card className="flex flex-col gap-y-4 p-4 lg:w-[calc(50%-0.5rem)]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">
+              Tailwind CSS Code:
+            </h2>
+
+            <Button
+              size="sm"
+              onClick={() =>
+                handleCopy(
+                  TailwindCSSCode,
+                  tailwindCopyStatus,
+                  setTailwindCopyStatus,
+                )
+              }
+              disabled={tailwindCopyStatus === "copied"}
+              className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
+              type="button"
+            >
+              {tailwindCopyStatus === "copied" ? (
+                <>
+                  <CheckIcon className="mr-2 size-3" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="mr-2 size-3" />
+                  Copy
+                </>
+              )}
+            </Button>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            <div dangerouslySetInnerHTML={{ __html: tailwindHtml }} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
