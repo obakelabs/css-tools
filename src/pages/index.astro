@@ -1,6 +1,8 @@
 ---
 import { AstroSeo } from "@astrolib/seo";
 
+import CssToolsTabs from "@/components/css-tools-tabs/index.astro";
+
 import Layout from "../layouts/Layout.astro";
 
 const title = "CSS Tools - Obake Labs";
@@ -11,15 +13,19 @@ const description =
 <AstroSeo title={title} description={description} />
 
 <Layout>
-  <main class="min-h-dvh">
+  <main class="flex min-h-dvh items-center justify-center">
     <section
-      class="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-y-4 px-4 py-10 xl:px-0"
+      class="mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-y-8 px-4 py-10 xl:px-0"
     >
-      <h1 class="text-center text-3xl font-bold">{title}</h1>
+      <div class="flex flex-col items-center justify-center gap-y-4">
+        <h1 class="text-center text-3xl font-bold">{title}</h1>
 
-      <p class="w-full max-w-xl text-center text-muted-foreground">
-        {description}
-      </p>
+        <p class="w-full max-w-xl text-center text-muted-foreground">
+          {description}
+        </p>
+      </div>
+
+      <CssToolsTabs />
     </section>
   </main>
 </Layout>
