@@ -15,7 +15,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter Variable", ...defaultTheme.fontFamily.sans],
+        sans: ["Plus Jakarta Sans Variable", ...defaultTheme.fontFamily.sans],
       },
       colors: {
         border: "hsl(var(--border))",
