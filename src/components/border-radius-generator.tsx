@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Card, CardContent, CardHeader } from "./ui/card";
-import { Separator } from "./ui/separator";
-import { Slider } from "./ui/slider";
-import { codeToHtml } from "shiki";
-import { Button } from "./ui/button";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 import { CheckIcon, CopyIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { codeToHtml } from "shiki";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 const BorderRadiusGenerator = () => {
   const [cssHtml, setCssHtml] = useState("");

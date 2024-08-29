@@ -1,16 +1,18 @@
+import { CheckIcon, CopyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { type RgbaColor } from "react-colorful";
+import { codeToHtml } from "shiki";
+
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+
+import ColorPicker from "./color-picker";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Switch } from "./ui/switch";
-import { Card, CardContent, CardHeader } from "./ui/card";
 import { Separator } from "./ui/separator";
-import { type RgbaColor } from "react-colorful";
-import ColorPicker from "./color-picker";
 import { Slider } from "./ui/slider";
-import { codeToHtml } from "shiki";
-import { Button } from "./ui/button";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { Switch } from "./ui/switch";
 
 const BoxShadowGenerator = () => {
   const [cssHtml, setCssHtml] = useState("");
