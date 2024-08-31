@@ -2,6 +2,8 @@
 import "@/styles/globals.css";
 import "@fontsource-variable/plus-jakarta-sans";
 
+import { ViewTransitions } from "astro:transitions";
+
 interface Props {}
 
 const {} = Astro.props;
@@ -18,6 +20,8 @@ const {} = Astro.props;
 
     <title>Astro Template - Obake Labs</title>
     <meta name="description" content="Astro Template - Obake Labs" />
+
+    <ViewTransitions />
   </head>
   <body>
     <slot />
