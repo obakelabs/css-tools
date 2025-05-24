@@ -215,7 +215,7 @@ const BoxShadowGenerator = () => {
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-0 lg:space-x-4">
         <Card className="flex flex-col gap-y-4 p-4 lg:w-[calc(50%-0.5rem)]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">
+            <h3 className="text-2xl leading-none font-semibold tracking-tight">
               CSS Code:
             </h3>
 
@@ -249,7 +249,7 @@ const BoxShadowGenerator = () => {
 
         <Card className="flex flex-col gap-y-4 p-4 lg:w-[calc(50%-0.5rem)]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">
+            <h3 className="text-2xl leading-none font-semibold tracking-tight">
               Tailwind CSS Code:
             </h3>
 

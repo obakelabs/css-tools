@@ -17,7 +17,7 @@ const ColorPicker = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="size-10 cursor-pointer rounded-lg border border-border"
+          className="border-border size-10 cursor-pointer rounded-lg border"
           style={{
             backgroundColor: `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`,
           }}
