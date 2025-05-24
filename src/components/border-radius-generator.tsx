@@ -1,5 +1,5 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { codeToHtml } from "shiki";
 
 import { Button } from "@/components/ui/button";
@@ -10,37 +10,59 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
+type CopyStatus = "ready" | "copied";
+
+interface BorderRadiusControls {
+  topLeftRadius: number;
+  topRightRadius: number;
+  bottomLeftRadius: number;
+  bottomRightRadius: number;
+}
+
 const BorderRadiusGenerator = () => {
+  const [controls, setControls] = useState<BorderRadiusControls>({
+    topLeftRadius: 10,
+    topRightRadius: 10,
+    bottomLeftRadius: 10,
+    bottomRightRadius: 10,
+  });
+
   const [cssHtml, setCssHtml] = useState("");
   const [tailwindHtml, setTailwindHtml] = useState("");
-  const [cssCopyStatus, setCssCopyStatus] = useState<"ready" | "copied">(
-    "ready",
-  );
-  const [tailwindCopyStatus, setTailwindCopyStatus] = useState<
-    "ready" | "copied"
-  >("ready");
-
-  const [topLeftRadius, setTopLeftRadius] = useState(10);
-  const [topRightRadius, setTopRightRadius] = useState(10);
-  const [bottomLeftRadius, setBottomLeftRadius] = useState(10);
-  const [bottomRightRadius, setBottomRightRadius] = useState(10);
+  const [cssCopyStatus, setCssCopyStatus] = useState<CopyStatus>("ready");
+  const [tailwindCopyStatus, setTailwindCopyStatus] =
+    useState<CopyStatus>("ready");
 
   const [copiedText, copy] = useCopyToClipboard();
 
-  const generatedBorderRadius = `${topLeftRadius}px ${topRightRadius}px ${bottomLeftRadius}px ${bottomRightRadius}px`;
+  const generatedBorderRadius = useMemo(() => {
+    const {
+      topLeftRadius,
+      topRightRadius,
+      bottomLeftRadius,
+      bottomRightRadius,
+    } = controls;
+    return `${topLeftRadius}px ${topRightRadius}px ${bottomLeftRadius}px ${bottomRightRadius}px`;
+  }, [controls]);
 
-  const CSSCode = ` .border-radius {
+  const CSSCode = useMemo(
+    () => ` .border-radius {
     border-radius: ${generatedBorderRadius};
-  }`;
+  }`,
+    [generatedBorderRadius],
+  );
 
-  const TailwindCSSCode = ` .border-radius {
-    @apply rounded-[${topLeftRadius}px_${topRightRadius}px_${bottomLeftRadius}px_${bottomRightRadius}px];
-  }`;
+  const TailwindCSSCode = useMemo(
+    () => ` .border-radius {
+    @apply rounded-[${controls.topLeftRadius}px_${controls.topRightRadius}px_${controls.bottomLeftRadius}px_${controls.bottomRightRadius}px];
+  }`,
+    [controls],
+  );
 
   const handleCopy = (
     code: string,
-    copyStatus: "ready" | "copied",
-    setCopyStatus: (status: "ready" | "copied") => void,
+    copyStatus: CopyStatus,
+    setCopyStatus: (status: CopyStatus) => void,
   ) => {
     if (copyStatus === "ready") {
       copy(code)
@@ -58,25 +80,38 @@ const BorderRadiusGenerator = () => {
 
   useEffect(() => {
     const generateHtml = async () => {
-      const generatedHtml = await codeToHtml(CSSCode, {
-        lang: "css",
-        theme: "dracula",
-      });
-      setCssHtml(generatedHtml);
+      const [generatedHtml, generatedTailwindHtml] = await Promise.all([
+        codeToHtml(CSSCode, {
+          lang: "css",
+          theme: "dracula",
+        }),
+        codeToHtml(TailwindCSSCode, {
+          lang: "css",
+          theme: "dracula",
+        }),
+      ]);
 
-      const generatedTailwindHtml = await codeToHtml(TailwindCSSCode, {
-        lang: "css",
-        theme: "dracula",
-      });
+      setCssHtml(generatedHtml);
       setTailwindHtml(generatedTailwindHtml);
     };
 
     generateHtml();
   }, [CSSCode, TailwindCSSCode]);
 
+  const handleControlChange = (
+    key: keyof BorderRadiusControls,
+    value: number,
+  ) => {
+    setControls((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
-    <div className="flex w-full flex-col gap-y-4">
-      <Card className="flex w-full flex-col md:flex-row">
+    <div
+      className="flex w-full flex-col gap-y-4"
+      role="region"
+      aria-label="Border Radius Generator"
+    >
+      <Card className="flex w-full flex-col gap-0 md:flex-row">
         <div className="flex w-full flex-col gap-y-4 p-4 md:w-1/2">
           <fieldset className="flex flex-col gap-y-3">
             <div className="flex items-center justify-between">
@@ -85,18 +120,24 @@ const BorderRadiusGenerator = () => {
                 type="number"
                 id="top-left-radius"
                 name="top-left-radius"
-                value={topLeftRadius}
-                onChange={(e) => setTopLeftRadius(Number(e.target.value))}
+                value={controls.topLeftRadius}
+                onChange={(e) =>
+                  handleControlChange("topLeftRadius", Number(e.target.value))
+                }
                 className="w-16 text-center"
+                aria-label="Top left radius in pixels"
               />
             </div>
 
             <Slider
               id="top-left-radius"
               name="top-left-radius"
-              value={[topLeftRadius]}
-              onValueChange={(value) => setTopLeftRadius(value[0])}
+              value={[controls.topLeftRadius]}
+              onValueChange={(value) =>
+                handleControlChange("topLeftRadius", value[0])
+              }
               max={150}
+              aria-label="Adjust top left radius"
             />
           </fieldset>
 
@@ -107,18 +148,24 @@ const BorderRadiusGenerator = () => {
                 type="number"
                 id="top-right-radius"
                 name="top-right-radius"
-                value={topRightRadius}
-                onChange={(e) => setTopRightRadius(Number(e.target.value))}
+                value={controls.topRightRadius}
+                onChange={(e) =>
+                  handleControlChange("topRightRadius", Number(e.target.value))
+                }
                 className="w-16 text-center"
+                aria-label="Top right radius in pixels"
               />
             </div>
 
             <Slider
               id="top-right-radius"
               name="top-right-radius"
-              value={[topRightRadius]}
-              onValueChange={(value) => setTopRightRadius(value[0])}
+              value={[controls.topRightRadius]}
+              onValueChange={(value) =>
+                handleControlChange("topRightRadius", value[0])
+              }
               max={150}
+              aria-label="Adjust top right radius"
             />
           </fieldset>
 
@@ -129,18 +176,27 @@ const BorderRadiusGenerator = () => {
                 type="number"
                 id="bottom-left-radius"
                 name="bottom-left-radius"
-                value={bottomLeftRadius}
-                onChange={(e) => setBottomLeftRadius(Number(e.target.value))}
+                value={controls.bottomLeftRadius}
+                onChange={(e) =>
+                  handleControlChange(
+                    "bottomLeftRadius",
+                    Number(e.target.value),
+                  )
+                }
                 className="w-16 text-center"
+                aria-label="Bottom left radius in pixels"
               />
             </div>
 
             <Slider
               id="bottom-left-radius"
               name="bottom-left-radius"
-              value={[bottomLeftRadius]}
-              onValueChange={(value) => setBottomLeftRadius(value[0])}
+              value={[controls.bottomLeftRadius]}
+              onValueChange={(value) =>
+                handleControlChange("bottomLeftRadius", value[0])
+              }
               max={150}
+              aria-label="Adjust bottom left radius"
             />
           </fieldset>
 
@@ -151,18 +207,27 @@ const BorderRadiusGenerator = () => {
                 type="number"
                 id="bottom-right-radius"
                 name="bottom-right-radius"
-                value={bottomRightRadius}
-                onChange={(e) => setBottomRightRadius(Number(e.target.value))}
+                value={controls.bottomRightRadius}
+                onChange={(e) =>
+                  handleControlChange(
+                    "bottomRightRadius",
+                    Number(e.target.value),
+                  )
+                }
                 className="w-16 text-center"
+                aria-label="Bottom right radius in pixels"
               />
             </div>
 
             <Slider
               id="bottom-right-radius"
               name="bottom-right-radius"
-              value={[bottomRightRadius]}
-              onValueChange={(value) => setBottomRightRadius(value[0])}
+              value={[controls.bottomRightRadius]}
+              onValueChange={(value) =>
+                handleControlChange("bottomRightRadius", value[0])
+              }
               max={150}
+              aria-label="Adjust bottom right radius"
             />
           </fieldset>
         </div>
@@ -176,6 +241,7 @@ const BorderRadiusGenerator = () => {
           <div
             className="size-40 bg-black"
             style={{ borderRadius: generatedBorderRadius }}
+            aria-label="Preview of the border radius"
           />
         </div>
       </Card>
@@ -195,6 +261,9 @@ const BorderRadiusGenerator = () => {
               disabled={cssCopyStatus === "copied"}
               className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
               type="button"
+              aria-label={
+                cssCopyStatus === "copied" ? "CSS code copied" : "Copy CSS code"
+              }
             >
               {cssCopyStatus === "copied" ? (
                 <>
@@ -233,6 +302,11 @@ const BorderRadiusGenerator = () => {
               disabled={tailwindCopyStatus === "copied"}
               className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
               type="button"
+              aria-label={
+                tailwindCopyStatus === "copied"
+                  ? "Tailwind CSS code copied"
+                  : "Copy Tailwind CSS code"
+              }
             >
               {tailwindCopyStatus === "copied" ? (
                 <>

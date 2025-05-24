@@ -1,5 +1,5 @@
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { type RgbaColor } from "react-colorful";
 import { codeToHtml } from "shiki";
 
@@ -14,46 +14,72 @@ import { Separator } from "./ui/separator";
 import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
 
+type CopyStatus = "ready" | "copied";
+
+interface ShadowControls {
+  horizontalLength: number;
+  verticalLength: number;
+  blurRadius: number;
+  spreadRadius: number;
+  shadowColor: RgbaColor;
+  inset: boolean;
+}
+
 const BoxShadowGenerator = () => {
+  const [controls, setControls] = useState<ShadowControls>({
+    horizontalLength: 10,
+    verticalLength: 10,
+    blurRadius: 10,
+    spreadRadius: 0,
+    shadowColor: {
+      r: 79,
+      g: 70,
+      b: 229,
+      a: 1,
+    },
+    inset: false,
+  });
+
   const [cssHtml, setCssHtml] = useState("");
   const [tailwindHtml, setTailwindHtml] = useState("");
-  const [cssCopyStatus, setCssCopyStatus] = useState<"ready" | "copied">(
-    "ready",
-  );
-  const [tailwindCopyStatus, setTailwindCopyStatus] = useState<
-    "ready" | "copied"
-  >("ready");
-
-  const [horizontalLength, setHorizontalLength] = useState(10);
-  const [verticalLength, setVerticalLength] = useState(10);
-  const [blurRadius, setBlurRadius] = useState(10);
-  const [spreadRadius, setSpreadRadius] = useState(0);
-  const [shadowColor, setShadowColor] = useState<RgbaColor>({
-    r: 79,
-    g: 70,
-    b: 229,
-    a: 1,
-  });
-  const [inset, setInset] = useState(false);
+  const [cssCopyStatus, setCssCopyStatus] = useState<CopyStatus>("ready");
+  const [tailwindCopyStatus, setTailwindCopyStatus] =
+    useState<CopyStatus>("ready");
 
   const [copiedText, copy] = useCopyToClipboard();
 
-  const generatedBoxShadow = `${inset ? "inset " : ""}${horizontalLength}px ${verticalLength}px ${blurRadius}px ${spreadRadius}px rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${shadowColor.a})`;
+  const generatedBoxShadow = useMemo(() => {
+    const {
+      horizontalLength,
+      verticalLength,
+      blurRadius,
+      spreadRadius,
+      shadowColor,
+      inset,
+    } = controls;
+    return `${inset ? "inset " : ""}${horizontalLength}px ${verticalLength}px ${blurRadius}px ${spreadRadius}px rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${shadowColor.a})`;
+  }, [controls]);
 
-  const CSSCode = ` .shadow {
+  const CSSCode = useMemo(
+    () => ` .shadow {
     -webkit-box-shadow: ${generatedBoxShadow};
     -moz-box-shadow: ${generatedBoxShadow};
     box-shadow: ${generatedBoxShadow};
-  }`;
+  }`,
+    [generatedBoxShadow],
+  );
 
-  const TailwindCSSCode = ` .shadow {
-    @apply shadow-[${inset ? "inset_" : ""}${horizontalLength}px_${verticalLength}px_${blurRadius}px_${spreadRadius}px_rgba(${shadowColor.r},${shadowColor.g},${shadowColor.b},${shadowColor.a})];
-  }`;
+  const TailwindCSSCode = useMemo(
+    () => ` .shadow {
+    @apply shadow-[${controls.inset ? "inset_" : ""}${controls.horizontalLength}px_${controls.verticalLength}px_${controls.blurRadius}px_${controls.spreadRadius}px_rgba(${controls.shadowColor.r},${controls.shadowColor.g},${controls.shadowColor.b},${controls.shadowColor.a})];
+  }`,
+    [controls],
+  );
 
   const handleCopy = (
     code: string,
-    copyStatus: "ready" | "copied",
-    setCopyStatus: (status: "ready" | "copied") => void,
+    copyStatus: CopyStatus,
+    setCopyStatus: (status: CopyStatus) => void,
   ) => {
     if (copyStatus === "ready") {
       copy(code)
@@ -71,25 +97,38 @@ const BoxShadowGenerator = () => {
 
   useEffect(() => {
     const generateHtml = async () => {
-      const generatedHtml = await codeToHtml(CSSCode, {
-        lang: "css",
-        theme: "dracula",
-      });
-      setCssHtml(generatedHtml);
+      const [generatedHtml, generatedTailwindHtml] = await Promise.all([
+        codeToHtml(CSSCode, {
+          lang: "css",
+          theme: "dracula",
+        }),
+        codeToHtml(TailwindCSSCode, {
+          lang: "css",
+          theme: "dracula",
+        }),
+      ]);
 
-      const generatedTailwindHtml = await codeToHtml(TailwindCSSCode, {
-        lang: "css",
-        theme: "dracula",
-      });
+      setCssHtml(generatedHtml);
       setTailwindHtml(generatedTailwindHtml);
     };
 
     generateHtml();
   }, [CSSCode, TailwindCSSCode]);
 
+  const handleControlChange = (
+    key: keyof ShadowControls,
+    value: number | boolean | RgbaColor,
+  ) => {
+    setControls((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
-    <div className="flex w-full flex-col gap-y-4">
-      <Card className="flex w-full flex-col md:flex-row">
+    <div
+      className="flex w-full flex-col gap-y-4"
+      role="region"
+      aria-label="Box Shadow Generator"
+    >
+      <Card className="flex w-full flex-col gap-0 md:flex-row">
         <div className="flex w-full flex-col gap-y-4 p-4 md:w-1/2">
           <fieldset className="flex flex-col gap-y-3">
             <div className="flex items-center justify-between">
@@ -98,19 +137,28 @@ const BoxShadowGenerator = () => {
                 type="number"
                 id="horizontal-length"
                 name="horizontal-length"
-                value={horizontalLength}
-                onChange={(e) => setHorizontalLength(Number(e.target.value))}
+                value={controls.horizontalLength}
+                onChange={(e) =>
+                  handleControlChange(
+                    "horizontalLength",
+                    Number(e.target.value),
+                  )
+                }
                 className="w-16 text-center"
+                aria-label="Horizontal length in pixels"
               />
             </div>
 
             <Slider
               id="horizontal-length"
               name="horizontal-length"
-              value={[horizontalLength]}
-              onValueChange={(value) => setHorizontalLength(value[0])}
+              value={[controls.horizontalLength]}
+              onValueChange={(value) =>
+                handleControlChange("horizontalLength", value[0])
+              }
               min={-100}
               max={100}
+              aria-label="Adjust horizontal length"
             />
           </fieldset>
 
@@ -121,19 +169,25 @@ const BoxShadowGenerator = () => {
                 type="number"
                 id="vertical-length"
                 name="vertical-length"
-                value={verticalLength}
-                onChange={(e) => setVerticalLength(Number(e.target.value))}
+                value={controls.verticalLength}
+                onChange={(e) =>
+                  handleControlChange("verticalLength", Number(e.target.value))
+                }
                 className="w-16 text-center"
+                aria-label="Vertical length in pixels"
               />
             </div>
 
             <Slider
               id="vertical-length"
               name="vertical-length"
-              value={[verticalLength]}
-              onValueChange={(value) => setVerticalLength(value[0])}
+              value={[controls.verticalLength]}
+              onValueChange={(value) =>
+                handleControlChange("verticalLength", value[0])
+              }
               min={-100}
               max={100}
+              aria-label="Adjust vertical length"
             />
           </fieldset>
 
@@ -144,19 +198,25 @@ const BoxShadowGenerator = () => {
                 type="number"
                 id="blur-radius"
                 name="blur-radius"
-                value={blurRadius}
-                onChange={(e) => setBlurRadius(Number(e.target.value))}
+                value={controls.blurRadius}
+                onChange={(e) =>
+                  handleControlChange("blurRadius", Number(e.target.value))
+                }
                 className="w-16 text-center"
+                aria-label="Blur radius in pixels"
               />
             </div>
 
             <Slider
               id="blur-radius"
               name="blur-radius"
-              value={[blurRadius]}
-              onValueChange={(value) => setBlurRadius(value[0])}
+              value={[controls.blurRadius]}
+              onValueChange={(value) =>
+                handleControlChange("blurRadius", value[0])
+              }
               min={0}
               max={100}
+              aria-label="Adjust blur radius"
             />
           </fieldset>
 
@@ -167,25 +227,35 @@ const BoxShadowGenerator = () => {
                 type="number"
                 id="spread-radius"
                 name="spread-radius"
-                value={spreadRadius}
-                onChange={(e) => setSpreadRadius(Number(e.target.value))}
+                value={controls.spreadRadius}
+                onChange={(e) =>
+                  handleControlChange("spreadRadius", Number(e.target.value))
+                }
                 className="w-16 text-center"
+                aria-label="Spread radius in pixels"
               />
             </div>
 
             <Slider
               id="spread-radius"
               name="spread-radius"
-              value={[spreadRadius]}
-              onValueChange={(value) => setSpreadRadius(value[0])}
+              value={[controls.spreadRadius]}
+              onValueChange={(value) =>
+                handleControlChange("spreadRadius", value[0])
+              }
               min={-100}
               max={100}
+              aria-label="Adjust spread radius"
             />
           </fieldset>
 
           <fieldset className="flex items-center justify-between">
             <Label htmlFor="color">Shadow Color</Label>
-            <ColorPicker color={shadowColor} onChange={setShadowColor} />
+            <ColorPicker
+              color={controls.shadowColor}
+              onChange={(color) => handleControlChange("shadowColor", color)}
+              aria-label="Select shadow color"
+            />
           </fieldset>
 
           <fieldset className="flex items-center justify-between">
@@ -193,8 +263,11 @@ const BoxShadowGenerator = () => {
             <Switch
               id="inset"
               name="inset"
-              checked={inset}
-              onCheckedChange={setInset}
+              checked={controls.inset}
+              onCheckedChange={(checked) =>
+                handleControlChange("inset", checked)
+              }
+              aria-label="Toggle inset shadow"
             />
           </fieldset>
         </div>
@@ -208,6 +281,7 @@ const BoxShadowGenerator = () => {
           <div
             className="size-40 rounded-lg bg-black"
             style={{ boxShadow: generatedBoxShadow }}
+            aria-label="Preview of the box shadow"
           />
         </div>
       </Card>
@@ -227,6 +301,9 @@ const BoxShadowGenerator = () => {
               disabled={cssCopyStatus === "copied"}
               className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
               type="button"
+              aria-label={
+                cssCopyStatus === "copied" ? "CSS code copied" : "Copy CSS code"
+              }
             >
               {cssCopyStatus === "copied" ? (
                 <>
@@ -265,6 +342,11 @@ const BoxShadowGenerator = () => {
               disabled={tailwindCopyStatus === "copied"}
               className="h-8 rounded-full bg-indigo-600 hover:bg-indigo-600/90"
               type="button"
+              aria-label={
+                tailwindCopyStatus === "copied"
+                  ? "Tailwind CSS code copied"
+                  : "Copy Tailwind CSS code"
+              }
             >
               {tailwindCopyStatus === "copied" ? (
                 <>

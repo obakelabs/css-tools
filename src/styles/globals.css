@@ -113,10 +113,10 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    font-family: "Plus Jakarta Sans Variable", sans-serif;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "Plus Jakarta Sans Variable", sans-serif;
   }
 }
 
